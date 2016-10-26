@@ -1,55 +1,83 @@
 """
-
 """
 
 print("Minimizador de CSS!")
 
-pen('arquivo.css','r')
-file2 = open('arquivo2.css','w')
+import os
+import tempfile
 
+filePath = 'arquivo.css'
 
-blockComment = False 
-
-for f in file.readlines():
+def removeComments(filePath):
+    file = open(filePath,'r')
+    text = file.readlines()
+    file.close()
+    
+    blockComment = False 
     line = ""
-    lineComment = False 
-    mark = False
-    blockMark = False
-    for let in f:
-        
-        if lineComment:
-            #print("comentario linha")
-            break
-        else:
-            if let == '/':
-                if mark:
-                    if not blockMark:
-                        lineComment = True
-                        mark = False
-                        #print("mark")
-                elif not blockMark:
-                    #print("nao é comentario bloco")
-                    mark = True
-                    
-            elif let == "*":
-                if blockComment:
-                    #print("comentario bloco fim")
-                    blockMark = True;
-                    blockComment = False
-                    
-                else:
-                #    print("comentario bloco inicio")
-                    blockComment = True
+    for f in text:
+        #line = ""
+        lineComment = False 
+        mark = False
+        blockMark = False
+        for let in f:
+            if lineComment:
+                break
             else:
-                if not blockComment:
-                #    print(let)
-                    line = line + let
-            
-    file2.write(line)
+                if let == '/':
+                    if mark:
+                        if not blockMark:
+                            lineComment = True
+                            mark = False
+                    elif not blockMark:
+                        mark = True
+                elif let == "*":
+                    if blockComment:
+                        blockMark = True;
+                        blockComment = False
+                    else:
+                        blockComment = True
+                else:
+                    if not blockComment:
+                        line = line + let
+                        
+    fileTmp = open(filePath+'-temp','w' )
+    fileTmp.write(line)
+    fileTmp.close()
+    
 
-file.close()
+def removeSpacesLineBreakers(filePath):
+    fileTmp = open(filePath+'-temp','r' )
+    text = fileTmp.readlines()    
+    fileTmp.close()
+    os.remove(filePath+'-temp')
+    
+    oneLine = ""
+    for f in text:
+        f = f.replace('\n',' ')
+        f = f.replace('} ','}')
+        f = f.replace('{ ','{')
+        f = f.replace('; ',';')
+        f = f.replace(' .','.')
+        f = f.replace(' #','#')
 
-file2.close()
+        oneLine = oneLine + f
+        
+    file2 = open(os.path.splitext(filePath)[0] + ".min.css",'w')
+    file2.write(oneLine)
+    file2.close()
 
+##############################################################
+
+#Removendo Comentarios 
+print("Removendo Comentarios")
+removeComments(filePath)
+
+
+#removendo quebras de linha
+print("Removendo quebras de linha")
+removeSpacesLineBreakers(filePath)
+
+print("Minimizador de CSS!")
 
 
